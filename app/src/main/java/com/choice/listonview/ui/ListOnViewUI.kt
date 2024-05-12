@@ -11,20 +11,31 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarData
+import androidx.compose.material3.SnackbarDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -37,6 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.choice.listonview.ListViewModel
 import com.choice.listonview.di.model.Ticket
 import com.choice.listonview.ui.model.ListEvent
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Preview
@@ -51,14 +63,30 @@ fun ListOnViewUI(modifier: Modifier = Modifier) {
     val snackbarHostState = remember {
         SnackbarHostState()
     }
+    val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val ticketUpdate = remember {
+        mutableStateOf<Ticket?>(null)
+    }
+
+
+    LaunchedEffect(state.snackBarMessage) {
+        state.snackBarMessage?.let { ticket ->
+            val isDownloaded = if (ticket.isDownloaded) "Join" else "Download"
+            ticketUpdate.value = ticket
+            snackbarHostState.showSnackbar(
+                message = "Ticket ${ticket.id} to $isDownloaded",
+                actionLabel = "Go To Ticket: ${ticket.id}",
+            )
+        }
+    }
 
     Scaffold(
         modifier = modifier,
         snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState
-            )
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                SnackbarList(scope, event, listState, ticketUpdate, data)
+            }
         }
     ) { paddingValues ->
 
@@ -73,6 +101,7 @@ fun ListOnViewUI(modifier: Modifier = Modifier) {
             when (event) {
                 is ListEvent.ListAll -> {
                     LazyColumn(
+                        state = listState,
                         modifier = Modifier
                             .animateContentSize()
                             .fillMaxSize()
@@ -86,11 +115,6 @@ fun ListOnViewUI(modifier: Modifier = Modifier) {
                                         snackbarHostState.showSnackbar("Item $id clicked")
                                     }
                                 },
-                                onItemUpdated = { id ->
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar("Item $id updated")
-                                    }
-                                }
                             )
                         }
                     }
@@ -108,6 +132,40 @@ fun ListOnViewUI(modifier: Modifier = Modifier) {
     }
 }
 
+@Composable
+private fun SnackbarList(
+    scope: CoroutineScope,
+    event: ListEvent,
+    listState: LazyListState,
+    ticketUpdate: MutableState<Ticket?>,
+    data: SnackbarData
+) {
+    Snackbar(
+        modifier = Modifier
+            .padding(16.dp),
+        shape = MaterialTheme.shapes.small,
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onTertiary,
+        action = {
+            TextButton(
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
+                onClick = {
+                    scope.launch {
+                        if (event is ListEvent.ListAll) {
+                            listState.scrollToItem(event.list.indexOf(ticketUpdate.value))
+                        }
+                    }
+                }) {
+                Text(text = data.visuals.actionLabel ?: "")
+            }
+        }
+    ) {
+        Text(text = data.visuals.message)
+    }
+}
+
 
 @Composable
 fun InfiniteLinearProgressIndicator(
@@ -117,7 +175,7 @@ fun InfiniteLinearProgressIndicator(
         modifier = Modifier.fillMaxWidth(),
         text = "Looking for tickets at the db..",
         textAlign = TextAlign.Center,
-        color = MaterialTheme.colorScheme.onTertiaryContainer,
+        color = MaterialTheme.colorScheme.primary,
         style = MaterialTheme.typography.bodyMedium,
     )
     LinearProgressIndicator(
@@ -132,7 +190,6 @@ fun InfiniteLinearProgressIndicator(
 private fun CardItem(
     modifier: Modifier = Modifier, item: Ticket,
     onClick: (id: Int) -> Unit,
-    onItemUpdated: (id: Int) -> Unit,
 ) {
 
     Card(modifier = modifier

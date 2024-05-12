@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.choice.listonview.core.extend.watchStatus
+import com.choice.listonview.data.repository.TicketRepository
+import com.choice.listonview.data.repository.TicketRepositoryImpl
 import com.choice.listonview.di.model.Ticket
 import com.choice.listonview.di.usecase.TicketUseCase
 import com.choice.listonview.ui.model.ListEvent
@@ -32,7 +34,18 @@ class ListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getListAllTickets()
+            observerUpdateTicket()
         }
+    }
+
+    fun observerUpdateTicket() {
+        TicketRepositoryImpl.updateTicketFlow.onEach { ticketFlow ->
+            ticketFlow?.let { ticket ->
+                state.update {
+                    it.copy(snackBarMessage = ticket)
+                }
+            }
+        }.launchIn(viewModelScope)
     }
 
     private suspend fun getListAllTickets() {
@@ -46,7 +59,7 @@ class ListViewModel @Inject constructor(
                 },
                 loading = {
                     state.update {
-                       it.copy(event = ListEvent.Loading)
+                        it.copy(event = ListEvent.Loading)
                     }
                 }
 

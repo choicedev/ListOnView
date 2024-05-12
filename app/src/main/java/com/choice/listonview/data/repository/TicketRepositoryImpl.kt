@@ -11,6 +11,7 @@ import com.choice.listonview.data.mapping.toEntity
 import com.choice.listonview.di.model.Ticket
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -43,17 +44,12 @@ class TicketRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateTicket(id: Int) {
-        dao.getById(id).let { entity ->
-            entity.copy(
-                isDownloaded = !entity.isDownloaded,
-                isChanged = !entity.isChanged
-            ).also {
-                dao.update(it)
-                withContext(Dispatchers.Main){
-                    val isDownloaded = if(it.isDownloaded) "Join" else "Download"
-                    Toast.makeText(context, "Update ${it.id} to $isDownloaded", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
+        dao.changeDownloadStatus(id, !dao.getById(id).isDownloaded)
+        val ticket = dao.getById(id)
+        updateTicketFlow.emit(ticket.toDomain())
+    }
+
+    companion object {
+        var updateTicketFlow = MutableSharedFlow<Ticket?>()
     }
 }
