@@ -1,7 +1,5 @@
 package com.choice.listonview.di.model
 
-import androidx.room.PrimaryKey
-
 data class Ticket(
     val id: Int = -1,
     val title: String,

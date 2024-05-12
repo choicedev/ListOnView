@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltAndroidApp
 class ListOnViewApplication : Application() {
@@ -21,7 +22,15 @@ class ListOnViewApplication : Application() {
             useCase.removeAllTickets(Unit)
             delay(1000 * 5)
             useCase.addTickets(Unit)
+            delay(1000 * 10)
+            while (true) {
+                delay(10.seconds)
+                (1..20).random().let {
+                    useCase.updateTicket(it)
+                }
+            }
         }
+
     }
 
 }

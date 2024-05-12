@@ -5,6 +5,7 @@ import com.choice.listonview.di.usecase.AddTicketsUseCase
 import com.choice.listonview.di.usecase.GetListAllTicketsUseCase
 import com.choice.listonview.di.usecase.RemoveAllTicketsUseCase
 import com.choice.listonview.di.usecase.TicketUseCase
+import com.choice.listonview.di.usecase.UpdateTicketUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,7 +23,8 @@ class UseCaseModule {
         return TicketUseCase(
             GetListAllTicketsUseCase(repository),
             RemoveAllTicketsUseCase(repository),
-            addTickets = AddTicketsUseCase(repository)
+            AddTicketsUseCase(repository),
+            UpdateTicketUseCase(repository)
         )
     }
 

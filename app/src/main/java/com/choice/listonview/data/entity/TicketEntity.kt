@@ -3,7 +3,6 @@ package com.choice.listonview.data.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.choice.listonview.data.entity.TicketEntity.Companion.TABLE_NAME
-import com.choice.listonview.di.model.Ticket
 
 @Entity(tableName = TABLE_NAME)
 data class TicketEntity(

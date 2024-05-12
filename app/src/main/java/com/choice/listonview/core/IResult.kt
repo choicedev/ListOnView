@@ -1,7 +1,6 @@
 package com.choice.listonview.core
 
 import androidx.annotation.Keep
-import kotlinx.coroutines.flow.Flow
 
 @Keep
 sealed class IResult<out DTO> {
