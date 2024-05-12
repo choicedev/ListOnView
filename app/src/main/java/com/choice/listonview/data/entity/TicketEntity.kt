@@ -12,7 +12,6 @@ data class TicketEntity(
     val description: String,
     val date: String,
     val isDownloaded: Boolean = false,
-    val isChanged: Boolean = false,
 ){
 
     companion object {

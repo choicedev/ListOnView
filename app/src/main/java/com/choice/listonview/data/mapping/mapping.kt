@@ -8,8 +8,7 @@ fun TicketEntity.toDomain() = Ticket(
     title = title,
     description = description,
     date = date,
-    isDownloaded = isDownloaded,
-    isChanged = isChanged
+    isDownloaded = isDownloaded
 )
 
 fun Ticket.toEntity() = TicketEntity(
@@ -17,6 +16,5 @@ fun Ticket.toEntity() = TicketEntity(
     title = title,
     description = description,
     date = date,
-    isDownloaded = isDownloaded,
-    isChanged = isChanged
+    isDownloaded = isDownloaded
 )
