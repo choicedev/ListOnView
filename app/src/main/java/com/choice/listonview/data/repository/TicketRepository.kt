@@ -8,15 +8,9 @@ interface TicketRepository {
 
     suspend fun getListTickets() : Flow<IResult<List<Ticket>>>
 
-    suspend fun changeTicket(
-        id: Int,
-        prefix: Int,
-        code: Int,
-        isDownloaded: Boolean
-    ): Flow<IResult<Unit>>
-
     suspend fun deleteAllTickets()
 
     suspend fun addTickets()
+    suspend fun updateTicket(id: Int)
 
 }
