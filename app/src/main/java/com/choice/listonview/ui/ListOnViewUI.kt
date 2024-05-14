@@ -1,5 +1,6 @@
 package com.choice.listonview.ui
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -106,7 +107,9 @@ fun ListOnViewUI(modifier: Modifier = Modifier) {
                             .animateContentSize()
                             .fillMaxSize()
                     ) {
-                        items(event.list) { ticket ->
+                        items(event.list, key = {
+                            it.id
+                        }) { ticket ->
                             CardItem(
                                 modifier = Modifier.animateContentSize(),
                                 item = ticket,
@@ -191,6 +194,8 @@ private fun CardItem(
     modifier: Modifier = Modifier, item: Ticket,
     onClick: (id: Int) -> Unit,
 ) {
+
+    Log.d("ListOnViewUI", "CardItem: $item")
 
     Card(modifier = modifier
         .padding(vertical = 5.dp)

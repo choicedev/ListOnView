@@ -14,7 +14,7 @@ interface TicketDao : BaseDao<TicketEntity> {
     fun getAll(): Flow<List<TicketEntity>>
 
     @Query("SELECT * FROM $TABLE_NAME WHERE id = :id")
-    fun getById(id: Int): TicketEntity
+    fun getById(id: Int): TicketEntity?
 
     @Query("UPDATE $TABLE_NAME SET isDownloaded = :isDownload WHERE id = :id")
     fun changeDownloadStatus(id: Int, isDownload: Boolean)

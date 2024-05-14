@@ -44,9 +44,11 @@ class TicketRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateTicket(id: Int) {
-        dao.changeDownloadStatus(id, !dao.getById(id).isDownloaded)
-        val ticket = dao.getById(id)
-        updateTicketFlow.emit(ticket.toDomain())
+        dao.getById(id)?.let { entity ->
+            dao.changeDownloadStatus(id, !entity.isDownloaded)
+            val ticket = dao.getById(id)
+            updateTicketFlow.emit(ticket?.toDomain())
+        }
     }
 
     companion object {
