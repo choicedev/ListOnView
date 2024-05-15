@@ -110,7 +110,7 @@ fun ListOnViewUI(modifier: Modifier = Modifier) {
                             .animateContentSize()
                             .fillMaxSize()
                     ) {
-                        items(listTickets, key ''= {it.id}) { ticket ->
+                        items(listTickets, key = {it.id}) { ticket ->
                          Log.d("CardItem", "ListOnViewUI: $ticket")
                             CardItem(
                                 modifier = Modifier.animateContentSize(),
