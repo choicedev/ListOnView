@@ -1,5 +1,6 @@
 package com.choice.listonview.ui
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +60,8 @@ fun ListOnViewUI(modifier: Modifier = Modifier) {
     val state by viewModel.state.collectAsState()
     val event = state.event
 
+    val listTickets = viewModel.listState.value
+
 
     val snackbarHostState = remember {
         SnackbarHostState()
@@ -85,7 +88,7 @@ fun ListOnViewUI(modifier: Modifier = Modifier) {
         modifier = modifier,
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState) { data ->
-                SnackbarList(scope, event, listState, ticketUpdate, data)
+                SnackbarList(scope, listTickets, listState, ticketUpdate, data)
             }
         }
     ) { paddingValues ->
@@ -100,13 +103,15 @@ fun ListOnViewUI(modifier: Modifier = Modifier) {
         ) {
             when (event) {
                 is ListEvent.ListAll -> {
+                    Log.d("CardItem", "entry ListALL")
                     LazyColumn(
                         state = listState,
                         modifier = Modifier
                             .animateContentSize()
                             .fillMaxSize()
                     ) {
-                        items(event.list) { ticket ->
+                        items(listTickets, key ''= {it.id}) { ticket ->
+                         Log.d("CardItem", "ListOnViewUI: $ticket")
                             CardItem(
                                 modifier = Modifier.animateContentSize(),
                                 item = ticket,
@@ -135,7 +140,7 @@ fun ListOnViewUI(modifier: Modifier = Modifier) {
 @Composable
 private fun SnackbarList(
     scope: CoroutineScope,
-    event: ListEvent,
+    list: List<Ticket>,
     listState: LazyListState,
     ticketUpdate: MutableState<Ticket?>,
     data: SnackbarData
@@ -153,9 +158,7 @@ private fun SnackbarList(
                 ),
                 onClick = {
                     scope.launch {
-                        if (event is ListEvent.ListAll) {
-                            listState.scrollToItem(event.list.indexOf(ticketUpdate.value))
-                        }
+                        listState.scrollToItem(list.indexOf(ticketUpdate.value))
                     }
                 }) {
                 Text(text = data.visuals.actionLabel ?: "")
@@ -191,7 +194,7 @@ private fun CardItem(
     modifier: Modifier = Modifier, item: Ticket,
     onClick: (id: Int) -> Unit,
 ) {
-
+    Log.d("CardItem", "CardItem: $item")
     Card(modifier = modifier
         .padding(vertical = 5.dp)
         .fillMaxSize(),

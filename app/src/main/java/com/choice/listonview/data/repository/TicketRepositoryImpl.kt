@@ -1,6 +1,7 @@
 package com.choice.listonview.data.repository
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import com.choice.listonview.core.IResult
 import com.choice.listonview.core.IResult.Companion.loading
@@ -13,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -22,15 +24,14 @@ class TicketRepositoryImpl @Inject constructor(
 ): TicketRepository {
     override suspend fun getListTickets(): Flow<IResult<List<Ticket>>> {
         return flow {
-            dao.getAll().collect { list ->
-                if(list.isNotEmpty()) {
-                    emit(success(list.map { it.toDomain() }))
-                    return@collect
-                }
-
-                emit(loading())
+            val list = dao.getAll()
+            if(list.isNotEmpty()) {
+                Log.d("CardItem", "getListTickets: $list")
+                emit(success(list.map { it.toDomain() }))
+                return@flow
             }
-        }
+            emit(loading())
+        }.flowOn(Dispatchers.IO)
     }
 
     override suspend fun deleteAllTickets() {

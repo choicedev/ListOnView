@@ -22,7 +22,7 @@ class ListOnViewApplication : Application() {
             useCase.removeAllTickets(Unit)
             delay(1000 * 5)
             useCase.addTickets(Unit)
-            delay(1000 * 10)
+            delay(1000 * 5)
             while (true) {
                 delay(10.seconds)
                 (1..20).random().let {

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface TicketDao : BaseDao<TicketEntity> {
 
     @Query("SELECT * FROM $TABLE_NAME")
-    fun getAll(): Flow<List<TicketEntity>>
+    fun getAll(): List<TicketEntity>
 
     @Query("SELECT * FROM $TABLE_NAME WHERE id = :id")
     fun getById(id: Int): TicketEntity

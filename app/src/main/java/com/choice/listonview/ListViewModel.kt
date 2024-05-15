@@ -13,12 +13,14 @@ import com.choice.listonview.ui.model.ListEvent
 import com.choice.listonview.ui.model.ListScreen
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class ListViewModel @Inject constructor(
@@ -38,33 +40,49 @@ class ListViewModel @Inject constructor(
         }
     }
 
+
     fun observerUpdateTicket() {
         TicketRepositoryImpl.updateTicketFlow.onEach { ticketFlow ->
-            ticketFlow?.let { ticket ->
-                state.update {
-                    it.copy(snackBarMessage = ticket)
+            ticketFlow?.let { updatedTicket ->
+                val currentList = _listState.value.toMutableList()
+                val existingTicketIndex = currentList.indexOfFirst { it.id == updatedTicket.id }
+
+                if (existingTicketIndex >= 0) {
+                    // Atualiza o ticket existente
+                    currentList[existingTicketIndex] = updatedTicket
+                } else {
+                    // Remove o ticket da lista, pois não existe mais no banco
+                    currentList.add(updatedTicket)
                 }
+
+                // Atualiza o estado com a nova lista
+                _listState.value = currentList
+                state.update {
+                    it.copy(snackBarMessage = updatedTicket)
+                }
+
             }
         }.launchIn(viewModelScope)
     }
 
     private suspend fun getListAllTickets() {
-        job?.cancel()
-        job = ticketUseCase.getAll(Unit).onEach { result ->
-            result.watchStatus(
+        delay(15.seconds)
+        ticketUseCase.getAll(Unit).collect {
+            it.watchStatus(
                 success = { list ->
-                    state.update {
-                        it.copy(event = ListEvent.ListAll(list))
+                    _listState.value = list
+                    state.update { screen ->
+                        screen.copy(event = ListEvent.ListAll)
                     }
                 },
                 loading = {
-                    state.update {
-                        it.copy(event = ListEvent.Loading)
+                    state.update { screen ->
+                        screen.copy(event = ListEvent.Loading)
                     }
                 }
-
             )
-        }.launchIn(viewModelScope)
+        }
     }
+
 
 }

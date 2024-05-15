@@ -4,7 +4,7 @@ import com.choice.listonview.di.model.Ticket
 
 sealed class ListEvent {
 
-    data class ListAll(val list: List<Ticket>) : ListEvent()
+    data object ListAll : ListEvent()
     data object Loading : ListEvent()
 
 }
