@@ -5,8 +5,7 @@ data class Ticket(
     val title: String,
     val description: String,
     val date: String,
-    val isDownloaded: Boolean = false,
-    val isChanged: Boolean = false
+    val isDownloaded: Boolean = false
 ){
 
     companion object {

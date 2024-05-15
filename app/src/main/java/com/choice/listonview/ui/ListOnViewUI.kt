@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
@@ -107,9 +108,11 @@ fun ListOnViewUI(modifier: Modifier = Modifier) {
                             .animateContentSize()
                             .fillMaxSize()
                     ) {
-                        items(event.list, key = {
-                            it.id
-                        }) { ticket ->
+                        itemsIndexed(event.list, key = {index, ticket ->
+                            Log.d("ListOnViewUI", "Key -> $ticket")
+                            ticket.id
+                        }) { index, ticket ->
+                            Log.d("ListOnViewUI", "Ticket -> $ticket")
                             CardItem(
                                 modifier = Modifier.animateContentSize(),
                                 item = ticket,
@@ -196,7 +199,6 @@ private fun CardItem(
 ) {
 
     Log.d("ListOnViewUI", "CardItem: $item")
-
     Card(modifier = modifier
         .padding(vertical = 5.dp)
         .fillMaxSize(),
